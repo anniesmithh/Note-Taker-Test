@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Note Taker">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>📝 Timestamped Note Taker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .stopwatch-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .stopwatch-display {
+            font-family: 'Courier New', monospace;
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            user-select: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            color: white;
+            touch-action: manipulation;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-start {
+            background: #28a745;
+        }
+
+        .btn-stop {
+            background: #ffc107;
+        }
+
+        .btn-reset {
+            background: #dc3545;
+        }
+
+        .btn-add {
+            background: #007bff;
+            padding: 12px 30px;
+        }
+
+        .btn-save {
+            background: #17a2b8;
+        }
+
+        .btn-clear {
+            background: #6c757d;
+        }
+
+        .separator {
+            height: 2px;
+            background: linear-gradient(to right, transparent, #ddd, transparent);
+            margin: 30px 0;
+        }
+
+        .note-input-section {
+            margin-bottom: 30px;
+        }
+
+        .note-input-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .note-input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        #noteInput {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px;
+            font-size: 1em;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        #noteInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #noteInput:disabled {
+            background-color: #f0f0f0;
+            color: #999;
+            cursor: not-allowed;
+            border-color: #ccc;
+        }
+
+        .notes-display-section {
+            margin-bottom: 30px;
+        }
+
+        .notes-display-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        #notesDisplay {
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 1em;
+            line-height: 1.6;
+        }
+
+        .note-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .note-timestamp {
+            color: #667eea;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 5px;
+        }
+
+        .note-content {
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .file-operations {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        .notification.success {
+            background: #28a745;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .notification.info {
+            background: #17a2b8;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .stopwatch-display {
+                font-size: 2em;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            button {
+                width: 100%;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .note-input-container {
+                flex-direction: column;
+            }
+
+            #noteInput {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Timestamped Note Taker</h1>
+
+        <!-- Stopwatch Section -->
+        <div class="stopwatch-section">
+            <div class="stopwatch-display" id="stopwatchDisplay">00:00:00.00</div>
+            <div class="controls">
+                <button class="btn-start" onclick="startStopwatch()">▶ Start</button>
+                <button class="btn-stop" onclick="stopStopwatch()">⏸ Stop</button>
+                <button class="btn-reset" onclick="resetStopwatch()">↻ Reset</button>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Note Input Section -->
+        <div class="note-input-section">
+            <h2>Enter your note:</h2>
+            <div class="note-input-container">
+                <input type="text" id="noteInput" placeholder="Start the stopwatch to begin taking notes..." onkeypress="handleKeyPress(event)" disabled>
+                <button class="btn-add" id="addNoteBtn" onclick="addNote()" disabled>➕ Add Note</button>
+            </div>
+        </div>
+
+        <div class="separator"></div>
+
+        <!-- Notes Display Section -->
+        <div class="notes-display-section">
+            <h2>Your Notes:</h2>
+            <div id="notesDisplay">
+                <div class="empty-state">No notes yet. Start the stopwatch and add your first note!</div>
+            </div>
+        </div>
+
+        <!-- File Operations -->
+        <div class="file-operations">
+            <button class="btn-save" onclick="saveNotes()">💾 Save as PDF</button>
+            <button class="btn-clear" onclick="clearSession()">🗑 Clear Session</button>
+        </div>
+    </div>
+
+    <!-- Include jsPDF library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed:', error);
+                    });
+            });
+        }
+
+        // Stopwatch variables
+        let startTime = null;
+        let elapsedTime = 0;
+        let running = false;
+        let timerInterval = null;
+
+        // Notes storage
+        let notes = [];
+        let sessionStart = new Date();
+
+        // Load notes from localStorage on page load
+        window.addEventListener('load', () => {
+            loadFromStorage();
+            displayNotes();
+            
+            // Show install prompt for iOS
+            if (isIOS() && !isInStandaloneMode()) {
+                setTimeout(() => {
+                    showNotification('Tap Share → Add to Home Screen to install this app!', 'info');
+                }, 2000);
+            }
+        });
+
+        // Detect iOS
+        function isIOS() {
+            return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        }
+
+        // Check if running in standalone mode
+        function isInStandaloneMode() {
+            return ('standalone' in window.navigator) && (window.navigator.standalone);
+        }
+
+        // Stopwatch functions
+        function startStopwatch() {
+            if (!running) {
+                startTime = Date.now() - elapsedTime;
+                running = true;
+                timerInterval = setInterval(updateStopwatch, 10);
+                
+                // Enable note input
+                const noteInput = document.getElementById('noteInput');
+                const addNoteBtn = document.getElementById('addNoteBtn');
+                noteInput.disabled = false;
+                addNoteBtn.disabled = false;
+                noteInput.placeholder = "Type your note here...";
+                noteInput.focus();
+            }
+        }
+
+        function stopStopwatch() {
+            if (running) {
+                running = false;
+                clearInterval(timerInterval);
+                elapsedTime = Date.now() - startTime;
+            }
+        }
+
+        function resetStopwatch() {
+            running = false;
+            clearInterval(timerInterval);
+            startTime = null;
+            elapsedTime = 0;
+            updateStopwatch();
+            
+            // Disable note input
+            const noteInput = document.getElementById('noteInput');
+            const addNoteBtn = document.getElementById('addNoteBtn');
+            noteInput.disabled = true;
+            addNoteBtn.disabled = true;
+            noteInput.placeholder = "Start the stopwatch to begin taking notes...";
+            noteInput.value = '';
+        }
+
+        function updateStopwatch() {
+            const currentTime = running ? Date.now() - startTime : elapsedTime;
+            const totalSeconds = Math.floor(currentTime / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const centiseconds = Math.floor((currentTime % 1000) / 10);
+
+            document.getElementById('stopwatchDisplay').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`;
+        }
+
+        function getCurrentTimestamp() {
+            const currentTime = running ? Date.now() - startTime : elapsedTime;
+            const totalSeconds = Math.floor(currentTime / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            const centiseconds = Math.floor((currentTime % 1000) / 10);
+
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`;
+        }
+
+        // Note functions
+        function addNote() {
+            const noteInput = document.getElementById('noteInput');
+            const content = noteInput.value.trim();
+
+            if (!content) {
+                showNotification('Please enter some text before adding a note.', 'warning');
+                return;
+            }
+
+            const timestamp = getCurrentTimestamp();
+            notes.push({
+                timestamp: timestamp,
+                content: content,
+                added_at: new Date().toISOString()
+            });
+
+            noteInput.value = '';
+            displayNotes();
+            saveToStorage();
+            noteInput.focus();
+        }
+
+        function displayNotes() {
+            const notesDisplay = document.getElementById('notesDisplay');
+
+            if (notes.length === 0) {
+                notesDisplay.innerHTML = '<div class="empty-state">No notes yet. Start the stopwatch and add your first note!</div>';
+            } else {
+                // Reverse the notes array to show newest first
+                const reversedNotes = [...notes].reverse();
+                notesDisplay.innerHTML = reversedNotes.map((note, index) => `
+                    <div class="note-item">
+                        <div class="note-timestamp">[${note.timestamp}]</div>
+                        <div class="note-content">${escapeHtml(note.content)}</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function saveNotes() {
+            if (notes.length === 0) {
+                showNotification('No notes to save. Add some notes first!', 'warning');
+                return;
+            }
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // Set up the document
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 20;
+                let yPosition = margin;
+
+                // Title
+                doc.setFontSize(24);
+                doc.setTextColor(102, 126, 234);
+                doc.text('📝 Timestamped Notes', pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 15;
+
+                // Session info
+                doc.setFontSize(12);
+                doc.setTextColor(51, 51, 51);
+                doc.text(`Session Start: ${sessionStart.toLocaleString()}`, margin, yPosition);
+                yPosition += 10;
+
+                // Separator
+                doc.setDrawColor(200, 200, 200);
+                doc.line(margin, yPosition, pageWidth - margin, yPosition);
+                yPosition += 10;
+
+                // Notes (in original order for PDF)
+                doc.setFontSize(11);
+                notes.forEach((note, index) => {
+                    // Check if we need a new page
+                    if (yPosition > pageHeight - 40) {
+                        doc.addPage();
+                        yPosition = margin;
+                    }
+
+                    // Note header
+                    doc.setTextColor(102, 126, 234);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`Note ${index + 1} - [${note.timestamp}]`, margin, yPosition);
+                    yPosition += 7;
+
+                    // Note content
+                    doc.setTextColor(51, 51, 51);
+                    doc.setFont(undefined, 'normal');
+                    const lines = doc.splitTextToSize(note.content, pageWidth - 2 * margin);
+                    doc.text(lines, margin, yPosition);
+                    yPosition += (lines.length * 7) + 10;
+                });
+
+                // Footer
+                yPosition = pageHeight - 20;
+                doc.setFontSize(9);
+                doc.setTextColor(128, 128, 128);
+                doc.text(
+                    `Total notes: ${notes.length} | Generated: ${new Date().toLocaleString()}`,
+                    pageWidth / 2,
+                    yPosition,
+                    { align: 'center' }
+                );
+
+                // Save the PDF
+                const filename = `notes_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.pdf`;
+                doc.save(filename);
+                
+                showNotification(`Notes saved as ${filename}`, 'success');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                showNotification('Error generating PDF. Please try again.', 'error');
+            }
+        }
+
+        function clearSession() {
+            if (notes.length === 0) {
+                showNotification('There are no notes to clear.', 'warning');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to clear all notes?\n\nThis action cannot be undone!')) {
+                return;
+            }
+
+            notes = [];
+            sessionStart = new Date();
+            stopStopwatch();
+            resetStopwatch();
+            displayNotes();
+            saveToStorage();
+            showNotification('All notes have been cleared and stopwatch reset.', 'success');
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                addNote();
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // LocalStorage functions
+        function saveToStorage() {
+            try {
+                localStorage.setItem('notes', JSON.stringify(notes));
+                localStorage.setItem('sessionStart', sessionStart.toISOString());
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+
+        function loadFromStorage() {
+            try {
+                const savedNotes = localStorage.getItem('notes');
+                const savedSession = localStorage.getItem('sessionStart');
+                
+                if (savedNotes) {
+                    notes = JSON.parse(savedNotes);
+                }
+                
+                if (savedSession) {
+                    sessionStart = new Date(savedSession);
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+========================================
+GITHUB DEPLOYMENT - QUICK COMMANDS
+========================================
+
+STEP 1: Create GitHub Repository
+---------------------------------
+1. Go to github.com
+2. Click "+" → "New repository"
+3. Name it (e.g., "note-taker-pwa")
+4. Make it Public
+5. Check "Add a README file"
+6. Click "Create repository"
+
+
+STEP 2: Deploy Using Git Commands
+----------------------------------
+Open Terminal and run these commands:
+
+# Navigate to the deploy folder
+cd ~/Desktop/note_taker_app/deploy
+
+# Initialize git
+git init
+
+# Add all files
+git add .
+
+# Commit
+git commit -m "Initial commit - PWA Note Taker"
+
+# Add your GitHub repository (REPLACE WITH YOUR INFO!)
+git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+
+# Push to GitHub
+git branch -M main
+git push -u origin main
+
+
+STEP 3: Enable GitHub Pages
+----------------------------
+1. Go to your repository on GitHub
+2. Click "Settings"
+3. Click "Pages" (left sidebar)
+4. Under "Source":
+   - Branch: main
+   - Folder: / (root)
+5. Click "Save"
+6. Wait 1-2 minutes
+
+
+STEP 4: Access Your App
+------------------------
+Your app will be live at:
+https://YOUR_USERNAME.github.io/YOUR_REPO/
+
+On iPad:
+1. Open Safari
+2. Go to the URL above
+3. Tap Share → "Add to Home Screen"
+4. Done!
+
+
+========================================
+ALTERNATIVE: DRAG & DROP METHOD
+========================================
+
+If you prefer not to use Git commands:
+
+1. Go to your GitHub repository
+2. Click "Add file" → "Upload files"
+3. Drag these 6 files from the deploy folder:
+   - index.html
+   - manifest.json
+   - service-worker.js
+   - icon-192.png
+   - icon-512.png
+   - README.md
+4. Click "Commit changes"
+5. Enable GitHub Pages (see Step 3 above)
+
+
+========================================
+TROUBLESHOOTING
+========================================
+
+If git command fails:
+- Make sure Git is installed: git --version
+- Install Git from: https://git-scm.com/downloads
+
+If push fails:
+- Check your GitHub username and repo name
+- You may need to authenticate with GitHub
+- Use a Personal Access Token if prompted
+
+If 404 error:
+- Wait 2-3 minutes for GitHub Pages to deploy
+- Check Settings → Pages to see deployment status
+
+
+========================================
+NEED HELP?
+========================================
+
+See GITHUB_DEPLOYMENT.md for detailed instructions
