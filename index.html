@@ -319,6 +319,17 @@
 
         <div class="separator"></div>
 
+        <!-- PDF Title Section -->
+        <div class="note-input-section">
+            <h2>PDF Title (Optional):</h2>
+            <div class="note-input-container">
+                <input type="text" id="pdfTitle" placeholder="e.g., Meeting Notes, Lecture 5, Project Planning...">
+            </div>
+            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">This title will appear at the top of your PDF export</p>
+        </div>
+
+        <div class="separator"></div>
+
         <!-- Notes Display Section -->
         <div class="notes-display-section">
             <h2>Your Notes:</h2>
@@ -504,12 +515,27 @@
                 const margin = 15;
                 let yPosition = margin;
 
-                // Title (without emoji)
-                doc.setFontSize(20);
-                doc.setTextColor(102, 126, 234);
-                doc.setFont(undefined, 'bold');
-                doc.text('TIMESTAMPED NOTES', pageWidth / 2, yPosition, { align: 'center' });
-                yPosition += 12;
+                // Custom title if provided
+                const customTitle = document.getElementById('pdfTitle').value.trim();
+                if (customTitle) {
+                    doc.setFontSize(22);
+                    doc.setTextColor(102, 126, 234);
+                    doc.setFont(undefined, 'bold');
+                    doc.text(customTitle.toUpperCase(), pageWidth / 2, yPosition, { align: 'center' });
+                    yPosition += 10;
+                    
+                    doc.setFontSize(16);
+                    doc.setTextColor(100, 100, 100);
+                    doc.setFont(undefined, 'normal');
+                    doc.text('TIMESTAMPED NOTES', pageWidth / 2, yPosition, { align: 'center' });
+                    yPosition += 12;
+                } else {
+                    doc.setFontSize(20);
+                    doc.setTextColor(102, 126, 234);
+                    doc.setFont(undefined, 'bold');
+                    doc.text('TIMESTAMPED NOTES', pageWidth / 2, yPosition, { align: 'center' });
+                    yPosition += 12;
+                }
 
                 // Session info
                 doc.setFontSize(10);
