@@ -501,58 +501,119 @@
                 // Set up the document
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const pageHeight = doc.internal.pageSize.getHeight();
-                const margin = 20;
+                const margin = 15;
                 let yPosition = margin;
 
-                // Title
-                doc.setFontSize(24);
+                // Title (without emoji)
+                doc.setFontSize(20);
                 doc.setTextColor(102, 126, 234);
-                doc.text('📝 Timestamped Notes', pageWidth / 2, yPosition, { align: 'center' });
-                yPosition += 15;
+                doc.setFont(undefined, 'bold');
+                doc.text('TIMESTAMPED NOTES', pageWidth / 2, yPosition, { align: 'center' });
+                yPosition += 12;
 
                 // Session info
-                doc.setFontSize(12);
-                doc.setTextColor(51, 51, 51);
-                doc.text(`Session Start: ${sessionStart.toLocaleString()}`, margin, yPosition);
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                doc.setFont(undefined, 'normal');
+                doc.text(`Session Start: ${sessionStart.toLocaleString()}`, pageWidth / 2, yPosition, { align: 'center' });
                 yPosition += 10;
 
-                // Separator
-                doc.setDrawColor(200, 200, 200);
+                // Separator line
+                doc.setDrawColor(102, 126, 234);
+                doc.setLineWidth(0.5);
                 doc.line(margin, yPosition, pageWidth - margin, yPosition);
-                yPosition += 10;
+                yPosition += 8;
 
-                // Notes (in original order for PDF)
+                // Table header
                 doc.setFontSize(11);
+                doc.setTextColor(255, 255, 255);
+                doc.setFillColor(102, 126, 234);
+                doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
+                
+                const col1X = margin + 3;
+                const col2X = margin + 35;
+                
+                doc.setFont(undefined, 'bold');
+                doc.text('#', col1X, yPosition + 5.5);
+                doc.text('Time', col2X, yPosition + 5.5);
+                doc.text('Note', col2X + 35, yPosition + 5.5);
+                yPosition += 8;
+
+                // Table rows
+                doc.setTextColor(51, 51, 51);
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(10);
+
                 notes.forEach((note, index) => {
                     // Check if we need a new page
-                    if (yPosition > pageHeight - 40) {
+                    const estimatedHeight = Math.ceil(note.content.length / 60) * 5 + 8;
+                    if (yPosition + estimatedHeight > pageHeight - 25) {
                         doc.addPage();
                         yPosition = margin;
+                        
+                        // Redraw header on new page
+                        doc.setFontSize(11);
+                        doc.setTextColor(255, 255, 255);
+                        doc.setFillColor(102, 126, 234);
+                        doc.rect(margin, yPosition, pageWidth - 2 * margin, 8, 'F');
+                        doc.setFont(undefined, 'bold');
+                        doc.text('#', col1X, yPosition + 5.5);
+                        doc.text('Time', col2X, yPosition + 5.5);
+                        doc.text('Note', col2X + 35, yPosition + 5.5);
+                        yPosition += 8;
+                        doc.setTextColor(51, 51, 51);
+                        doc.setFont(undefined, 'normal');
+                        doc.setFontSize(10);
                     }
 
-                    // Note header
+                    // Row background (alternating colors)
+                    if (index % 2 === 0) {
+                        doc.setFillColor(248, 249, 250);
+                        doc.rect(margin, yPosition, pageWidth - 2 * margin, estimatedHeight, 'F');
+                    }
+
+                    // Draw cell borders
+                    doc.setDrawColor(220, 220, 220);
+                    doc.setLineWidth(0.1);
+                    doc.rect(margin, yPosition, pageWidth - 2 * margin, estimatedHeight);
+
+                    // Note number
                     doc.setTextColor(102, 126, 234);
                     doc.setFont(undefined, 'bold');
-                    doc.text(`Note ${index + 1} - [${note.timestamp}]`, margin, yPosition);
-                    yPosition += 7;
+                    doc.text(`${index + 1}`, col1X, yPosition + 5);
 
-                    // Note content
-                    doc.setTextColor(51, 51, 51);
+                    // Timestamp
+                    doc.setTextColor(102, 126, 234);
                     doc.setFont(undefined, 'normal');
-                    const lines = doc.splitTextToSize(note.content, pageWidth - 2 * margin);
-                    doc.text(lines, margin, yPosition);
-                    yPosition += (lines.length * 7) + 10;
+                    doc.text(note.timestamp, col2X, yPosition + 5);
+
+                    // Note content (wrapped)
+                    doc.setTextColor(51, 51, 51);
+                    const maxWidth = pageWidth - col2X - 40;
+                    const lines = doc.splitTextToSize(note.content, maxWidth);
+                    doc.text(lines, col2X + 35, yPosition + 5);
+
+                    yPosition += estimatedHeight;
                 });
 
                 // Footer
-                yPosition = pageHeight - 20;
+                doc.setDrawColor(102, 126, 234);
+                doc.setLineWidth(0.5);
+                doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
+                
                 doc.setFontSize(9);
                 doc.setTextColor(128, 128, 128);
+                doc.setFont(undefined, 'italic');
                 doc.text(
-                    `Total notes: ${notes.length} | Generated: ${new Date().toLocaleString()}`,
-                    pageWidth / 2,
-                    yPosition,
-                    { align: 'center' }
+                    `Total Notes: ${notes.length}`,
+                    margin,
+                    pageHeight - 10
+                );
+                doc.text(
+                    `Generated: ${new Date().toLocaleString()}`,
+                    pageWidth - margin,
+                    pageHeight - 10,
+                    { align: 'right' }
                 );
 
                 // Save the PDF
