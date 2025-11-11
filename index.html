@@ -296,6 +296,17 @@
     <div class="container">
         <h1>📝 Timestamped Note Taker</h1>
 
+        <!-- PDF Title Section -->
+        <div class="note-input-section">
+            <h2>PDF Title (Optional):</h2>
+            <div class="note-input-container">
+                <input type="text" id="pdfTitle" placeholder="e.g., Meeting Notes, Lecture 5, Project Planning...">
+            </div>
+            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">This title will appear at the top of your PDF export</p>
+        </div>
+
+        <div class="separator"></div>
+
         <!-- Stopwatch Section -->
         <div class="stopwatch-section">
             <div class="stopwatch-display" id="stopwatchDisplay">00:00:00.00</div>
@@ -315,17 +326,6 @@
                 <input type="text" id="noteInput" placeholder="Start the stopwatch to begin taking notes..." onkeypress="handleKeyPress(event)" disabled>
                 <button class="btn-add" id="addNoteBtn" onclick="addNote()" disabled>➕ Add Note</button>
             </div>
-        </div>
-
-        <div class="separator"></div>
-
-        <!-- PDF Title Section -->
-        <div class="note-input-section">
-            <h2>PDF Title (Optional):</h2>
-            <div class="note-input-container">
-                <input type="text" id="pdfTitle" placeholder="e.g., Meeting Notes, Lecture 5, Project Planning...">
-            </div>
-            <p style="font-size: 0.9em; color: #666; margin-top: 5px;">This title will appear at the top of your PDF export</p>
         </div>
 
         <div class="separator"></div>
